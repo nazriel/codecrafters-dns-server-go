@@ -32,6 +32,12 @@ func main() {
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
+		requestMsg := dns.MessageFromBytes(buf[:size])
+		if requestMsg == nil {
+			fmt.Println("Failed to parse request")
+			continue
+		}
+
 		questions := []dns.Question{}
 		questions = append(questions, dns.Question{Name: dns.NameFromString("codecrafters.io"), Type: 1, Class: 1})
 
@@ -40,8 +46,19 @@ func main() {
 
 		response := dns.Message{
 			Header: dns.Header{
-				PacketID:          1234,
-				HeaderFlags:       dns.HeaderFlags{QueryResponseIndiciator: 1},
+				PacketID: requestMsg.Header.PacketID,
+				HeaderFlags: dns.HeaderFlags{
+					QueryResponseIndiciator: 1,
+					Opcode:                  requestMsg.Header.HeaderFlags.Opcode,
+					RecursionDesired:        requestMsg.Header.HeaderFlags.RecursionDesired,
+					ResponseCode: func() uint8 {
+						if requestMsg.Header.HeaderFlags.Opcode == 0 {
+							return 0
+						} else {
+							return 4
+						}
+					}(),
+				},
 				QuestionCount:     uint16(len(questions)),
 				AnswerRecordCount: uint16(len(answers)),
 			},

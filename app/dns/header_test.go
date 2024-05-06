@@ -32,6 +32,27 @@ func TestHeaderFlagsPacked(t *testing.T) {
 			t.Errorf("got %d, expected %d", result, expected)
 		}
 	}
+
+	{
+		result := HeaderFlags{1, 0, 0, 1, 1, 0, 0, 1}.Packed()
+		expected := uint16(0b1000001100000001)
+
+		if result != expected {
+			t.Errorf("got %d, expected %d", result, expected)
+		}
+
+	}
+}
+
+func TestHeaderUnpacked(t *testing.T) {
+	{
+		expected := HeaderFlags{1, 0, 0, 1, 1, 0, 0, 1}
+		result := UnpackFlags(0b1000001100000001)
+
+		if result != expected {
+			t.Errorf("got %d, expected %d", result, expected)
+		}
+	}
 }
 
 func TestHeaderBytes(t *testing.T) {

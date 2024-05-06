@@ -17,3 +17,19 @@ func (message Message) Bytes() []byte {
 
 	return bytes
 }
+
+func MessageFromBytes(payload []byte) *Message {
+	message := &Message{}
+	payloadLen := len(payload)
+
+	if payloadLen < 12 {
+		return nil
+	}
+	if header := HeaderFromBytes(payload[0:12]); header != nil {
+		message.Header = *header
+	} else {
+		return nil
+	}
+
+	return message
+}
