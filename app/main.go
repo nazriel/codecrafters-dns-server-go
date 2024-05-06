@@ -33,15 +33,20 @@ func main() {
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
 		questions := []dns.Question{}
-		questions = append(questions, dns.Question{Name: dns.QuestionNameFromString("codecrafters.io"), Type: 1, Class: 1})
+		questions = append(questions, dns.Question{Name: dns.NameFromString("codecrafters.io"), Type: 1, Class: 1})
+
+		answers := []dns.Answer{}
+		answers = append(answers, dns.Answer{Name: dns.NameFromString("codecrafters.io"), Type: 1, Class: 1, TTL: 3600, Data: dns.IpFromString("1.1.1.1")})
 
 		response := dns.Message{
 			Header: dns.Header{
-				PacketID:      1234,
-				HeaderFlags:   dns.HeaderFlags{QueryResponseIndiciator: 1},
-				QuestionCount: uint16(len(questions)),
+				PacketID:          1234,
+				HeaderFlags:       dns.HeaderFlags{QueryResponseIndiciator: 1},
+				QuestionCount:     uint16(len(questions)),
+				AnswerRecordCount: uint16(len(answers)),
 			},
-			Question: questions,
+			Questions: questions,
+			Answers:   answers,
 		}
 
 		_, err = udpConn.WriteToUDP(response.Bytes(), source)
