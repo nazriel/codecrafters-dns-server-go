@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net"
+
+	"github.com/codecrafters-io/dns-server-starter-go/app/dns"
 )
 
 func main() {
@@ -31,9 +33,14 @@ func main() {
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
 		// Create an empty response
-		response := []byte{}
+		response := dns.Message{
+			Header: dns.Header{
+				PacketID:    1234,
+				HeaderFlags: dns.HeaderFlags{QueryResponseIndiciator: 1},
+			},
+		}
 
-		_, err = udpConn.WriteToUDP(response, source)
+		_, err = udpConn.WriteToUDP(response.Bytes(), source)
 		if err != nil {
 			fmt.Println("Failed to send response:", err)
 		}
