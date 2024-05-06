@@ -38,11 +38,12 @@ func main() {
 			continue
 		}
 
-		questions := []dns.Question{}
-		questions = append(questions, dns.Question{Name: dns.NameFromString("codecrafters.io"), Type: 1, Class: 1})
+		questions := requestMsg.Questions
 
 		answers := []dns.Answer{}
-		answers = append(answers, dns.Answer{Name: dns.NameFromString("codecrafters.io"), Type: 1, Class: 1, TTL: 3600, Data: dns.IpFromString("1.1.1.1")})
+		for _, question := range questions {
+			answers = append(answers, dns.Answer{Name: question.Name, Type: 1, Class: 1, TTL: 3600, Length: 4, Data: dns.IpFromString("1.1.1.1")})
+		}
 
 		response := dns.Message{
 			Header: dns.Header{

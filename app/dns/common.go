@@ -2,6 +2,7 @@ package dns
 
 import (
 	"encoding/binary"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -22,6 +23,31 @@ func (qn Name) AsLabel() []byte {
 		result = append(result, []byte(part.Str)...)
 	}
 	result = append(result, 0)
+
+	return result
+}
+
+func NameFromBytes(payload []byte) Name {
+	// len, str, len, str, 0
+	result := Name{}
+	for {
+		if len(payload) == 0 {
+			fmt.Println("unterminated labels")
+			return Name{}
+		}
+		length := payload[0]
+		if length == 0 {
+			break
+		}
+		if length < 1 || length > 255 {
+			fmt.Println("wrong label length")
+			return Name{}
+		}
+		str := payload[1 : length+1]
+
+		result.Parts = append(result.Parts, NamePart{string(str), length})
+		payload = payload[length+1:]
+	}
 
 	return result
 }

@@ -25,11 +25,23 @@ func MessageFromBytes(payload []byte) *Message {
 	if payloadLen < 12 {
 		return nil
 	}
+
 	if header := HeaderFromBytes(payload[0:12]); header != nil {
 		message.Header = *header
 	} else {
 		return nil
 	}
+	payload = payload[12:]
+
+	questionCount := message.Header.QuestionCount
+	if questions, consumed := QuestionsFromBytes(payload[:payloadLen], questionCount); questions != nil {
+		message.Questions = questions
+		payload = payload[consumed:]
+	} else {
+		return nil
+	}
+
+	_ = payload
 
 	return message
 }
